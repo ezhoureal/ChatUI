@@ -22,6 +22,10 @@ struct ContentView: View {
             return
         }
         texts.append(Message(content: content))
+        Task {
+            let chat = ChatRequest()
+            _ = await chat.sendMessage(message: content)
+        }
         content = ""
         scroller.scrollTo(edge: .bottom)
     }

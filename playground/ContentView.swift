@@ -14,27 +14,33 @@ struct Message: Identifiable {
 
 struct ContentView: View {
     @State private var scroller: ScrollPosition = .init()
-    @State private var content = ""
-    @State private var texts = [Message(content: "Hello from the chatbot")]
+    @State private var inputValue = ""
+    @State private var disableInput = false
+    @State private var messages = [Message(content: "Hello from the chatbot")]
+    @FocusState private var focused: Bool
     
     func submitText() {
-        if content == "" {
+        if inputValue == "" {
             return
         }
-        texts.append(Message(content: content))
-        Task { [content] in
-            let chat = ChatRequest()
-            print("during task, \(content)")
-            _ = await chat.sendMessage(message: content)
+        Task { [inputValue] in
+            let response = await sendMessage(message: inputValue, mock: false)
+            messages.append(Message(content: response))
+            disableInput = false
+            focused = true
+            scroller.scrollTo(edge: .bottom)
         }
-        content = ""
+        messages.append(Message(content: inputValue))
+        disableInput = true
+        inputValue = ""
         scroller.scrollTo(edge: .bottom)
     }
+    
     var body: some View {
         ScrollView {
             LazyVStack {
                 let _ = print("ContentView")
-                ForEach(texts) { text in
+                ForEach(messages) { text in
                     Text(text.content)
                         .padding()
                         .background(Color.blue)
@@ -42,13 +48,15 @@ struct ContentView: View {
                         .cornerRadius(8)
                 }
             }
-        }.frame(width: 500, height: 200)
-            .scrollPosition($scroller)
+        }
+        .scrollPosition($scroller)
+        
         HStack {
-            TextField("This is title", text: $content).border(Color.green)
+            TextField("This is title", text: $inputValue).border(Color.green)
                 .onSubmit {
-                submitText()
-            }
+                    submitText()
+                }.disabled(disableInput)
+                .focused($focused)
             Button("Send") {
                 submitText()
             }

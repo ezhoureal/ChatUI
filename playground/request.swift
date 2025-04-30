@@ -10,7 +10,7 @@ final class ChatRequest {
     private let url = URL(string: "https://api.deepseek.com/chat/completions")!
     private var response: String = ""
     func sendMessage(message: String) async -> String {
-        let apiKey: String = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as! String
+        let apiKey: String = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String ?? ""
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

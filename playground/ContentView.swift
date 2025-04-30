@@ -22,8 +22,9 @@ struct ContentView: View {
             return
         }
         texts.append(Message(content: content))
-        Task {
+        Task { [content] in
             let chat = ChatRequest()
+            print("during task, \(content)")
             _ = await chat.sendMessage(message: content)
         }
         content = ""

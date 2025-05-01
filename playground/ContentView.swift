@@ -8,59 +8,64 @@
 import SwiftUI
 
 struct Message: Identifiable {
+    enum Author {
+        case User, Chatbot, System
+    }
     let id = UUID()
     let content: String
+    let author: Author
 }
 
 struct ContentView: View {
-    @State private var scroller: ScrollPosition = .init()
     @State private var inputValue = ""
-    @State private var disableInput = false
-    @State private var messages = [Message(content: "Hello from the chatbot")]
+    @State private var disableSubmit = false
+    @State private var messages = [Message(content: "Hello from the chatbot", author: .System)]
     @FocusState private var focused: Bool
     
+    @MainActor
     func submitText() {
-        if inputValue == "" {
+        if inputValue == "" || disableSubmit {
             return
         }
         Task { [inputValue] in
-            let response = await sendMessage(message: inputValue, mock: false)
-            messages.append(Message(content: response))
-            disableInput = false
+            let response = await sendMessage(message: inputValue, mock: true)
+            withAnimation(.spring) {
+                messages.append(Message(content: response, author: .Chatbot))
+            }
+            disableSubmit = false
             focused = true
-            scroller.scrollTo(edge: .bottom)
         }
-        messages.append(Message(content: inputValue))
-        disableInput = true
+        withAnimation(.spring) {
+            messages.append(Message(content: inputValue, author: .User))
+        }
+        disableSubmit = true
         inputValue = ""
-        scroller.scrollTo(edge: .bottom)
     }
     
     var body: some View {
         ScrollView {
             LazyVStack {
-                let _ = print("ContentView")
-                ForEach(messages) { text in
-                    Text(text.content)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                ForEach(messages) { message in
+                    MessageView(message: message)
+                        .transition(.slide)
                 }
             }
         }
-        .scrollPosition($scroller)
+        .defaultScrollAnchor(.bottom)
+        .defaultScrollAnchor(.top, for: .alignment)
+        .padding(10)
         
         HStack {
-            TextField("This is title", text: $inputValue).border(Color.green)
-                .onSubmit {
-                    submitText()
-                }.disabled(disableInput)
-                .focused($focused)
-            Button("Send") {
+            TextEditorWithPlaceholder(text: $inputValue)
+                .padding(5)
+            Button("Send", systemImage: "message") {
                 submitText()
             }
-        }
+            .disabled(disableSubmit)
+            
+        }.background(Color.white)
+            .padding(10)
+            .frame(height: 100)
     }
 }
 #Preview {

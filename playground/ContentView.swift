@@ -17,6 +17,7 @@ struct Message: Identifiable {
 }
 
 struct ContentView: View {
+    @Environment(\.colorScheme) var colorMode
     @State private var shiftPressed = false
     @State private var inputValue = ""
     @State private var disableSubmit = false

@@ -72,11 +72,14 @@ struct ContentView: View {
             Button("Send", systemImage: "paperplane") {
                 submitText()
             }
-            .disabled(disableSubmit)
-            
-        }.background(Color.white)
-            .padding(10)
-            .clipShape(RoundedRectangle(cornerRadius: 50))
+            .buttonStyle(.plain)
+            .frame(minHeight: 40)
+            .padding(.trailing, 15)
+            .disabled(disableSubmit || inputValue.isEmpty)
+        }
+        .background(colorMode == .dark ? Color.black : .white)
+        .padding(10)
+        .clipShape(RoundedRectangle(cornerRadius: 50))
     }
 }
 #Preview {

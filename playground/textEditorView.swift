@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TextEditorWithPlaceholder: View {
+struct CustomTextEditor: View {
     @Binding var text: String
     
     var body: some View {
@@ -15,12 +15,14 @@ struct TextEditorWithPlaceholder: View {
             if text.isEmpty {
                 Text("Ask me anything")
                     .padding(.leading, 6)
-                    .opacity(0.8)
             }
             TextEditor(text: $text)
                 .opacity(text.isEmpty ? 0.85 : 1)
-                .cornerRadius(5)
                 .font(.system(size: 14))
-        }.frame(maxHeight: 40)
+        }.frame(maxHeight: 50)
     }
+}
+
+#Preview {
+    ContentView()
 }

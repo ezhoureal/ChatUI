@@ -20,7 +20,6 @@ struct ContentView: View {
     @State private var inputValue = ""
     @State private var disableSubmit = false
     @State private var messages = [Message(content: "Hello from the chatbot", author: .System)]
-    @FocusState private var focused: Bool
     
     @MainActor
     func submitText() {
@@ -33,7 +32,6 @@ struct ContentView: View {
                 messages.append(Message(content: response, author: .Chatbot))
             }
             disableSubmit = false
-            focused = true
         }
         withAnimation(.spring) {
             messages.append(Message(content: inputValue, author: .User))
@@ -56,16 +54,21 @@ struct ContentView: View {
         .padding(10)
         
         HStack {
-            TextEditorWithPlaceholder(text: $inputValue)
+            CustomTextEditor(text: $inputValue)
                 .padding(5)
-            Button("Send", systemImage: "message") {
+                // todo: allow new line with shift enter
+                .onKeyPress(.return, phases: .down) { _ in
+                    submitText()
+                    return .handled
+                }
+            Button("Send", systemImage: "paperplane") {
                 submitText()
             }
             .disabled(disableSubmit)
             
         }.background(Color.white)
             .padding(10)
-            .frame(height: 100)
+            .clipShape(RoundedRectangle(cornerRadius: 50))
     }
 }
 #Preview {

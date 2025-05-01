@@ -17,6 +17,7 @@ struct Message: Identifiable {
 }
 
 struct ContentView: View {
+    @State private var shiftPressed = false
     @State private var inputValue = ""
     @State private var disableSubmit = false
     @State private var messages = [Message(content: "Hello from the chatbot", author: .System)]
@@ -56,10 +57,16 @@ struct ContentView: View {
         HStack {
             CustomTextEditor(text: $inputValue)
                 .padding(5)
-                // todo: allow new line with shift enter
                 .onKeyPress(.return, phases: .down) { _ in
+                    if (shiftPressed) {
+                        // allow new line with shift enter
+                        return .ignored
+                    }
                     submitText()
                     return .handled
+                }
+                .onModifierKeysChanged {old, new in
+                    shiftPressed = new.contains(.shift)
                 }
             Button("Send", systemImage: "paperplane") {
                 submitText()

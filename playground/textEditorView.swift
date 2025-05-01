@@ -13,7 +13,7 @@ struct CustomTextEditor: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             if text.isEmpty {
-                Text("Ask me anything")
+                Text("Ask me anything. Use Shift + Enter for new line")
                     .padding(.leading, 6)
             }
             TextEditor(text: $text)

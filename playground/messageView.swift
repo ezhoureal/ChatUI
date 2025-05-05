@@ -11,7 +11,7 @@ struct MessageView: View {
     let message: Message
     var body: some View {
         HStack {
-            if (message.author == .User) {
+            if (message.author == .user) {
                 Spacer()
             }
             Text(message.content)
@@ -19,7 +19,7 @@ struct MessageView: View {
                 .background(Color.blue)
                 .foregroundColor(.white)
                 .cornerRadius(8)
-            if (message.author != .User) {
+            if (message.author != .user) {
                 Spacer()
             }
         }

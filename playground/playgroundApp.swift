@@ -12,7 +12,7 @@ struct playgroundApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .modelContainer(for: Chat.self) // Enable SwiftData
+            .modelContainer(for: [Chat.self, Message.self]) // Enable SwiftData
         }
     }
 }

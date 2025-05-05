@@ -22,15 +22,17 @@ struct ChatView: View {
         Task { [inputValue] in
             let response = await sendMessage(message: inputValue, mock: true)
             withAnimation(.spring) {
-                chat.messages.append(Message(content: response, author: .Chatbot))
+                chat.messages.append(Message(content: response, author: .chatbot))
+                disableSubmit = false
+                print("in animation submit, message = \(chat.messages)")
             }
-            disableSubmit = false
         }
         withAnimation(.spring) {
-            chat.messages.append(Message(content: inputValue, author: .User))
+            chat.messages.append(Message(content: inputValue, author: .user))
+            disableSubmit = true
+            inputValue = ""
+            print("in animation submit, message = \(chat.messages)")
         }
-        disableSubmit = true
-        inputValue = ""
     }
     
     var body: some View {

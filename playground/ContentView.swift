@@ -1,87 +1,41 @@
-//
-//  ContentView.swift
-//  playground
-//
-//  Created by Tianer Zhou on 2025/4/22.
-//
-
 import SwiftUI
-
-struct Message: Identifiable {
-    enum Author {
-        case User, Chatbot, System
-    }
-    let id = UUID()
-    let content: String
-    let author: Author
-}
+import SwiftData
 
 struct ContentView: View {
-    @Environment(\.colorScheme) var colorMode
-    @State private var shiftPressed = false
-    @State private var inputValue = ""
-    @State private var disableSubmit = false
-    @State private var messages = [Message(content: "Hello from the chatbot", author: .System)]
-    
-    @MainActor
-    func submitText() {
-        if inputValue == "" || disableSubmit {
-            return
-        }
-        Task { [inputValue] in
-            let response = await sendMessage(message: inputValue, mock: true)
-            withAnimation(.spring) {
-                messages.append(Message(content: response, author: .Chatbot))
-            }
-            disableSubmit = false
-        }
-        withAnimation(.spring) {
-            messages.append(Message(content: inputValue, author: .User))
-        }
-        disableSubmit = true
-        inputValue = ""
-    }
-    
+    @Environment(\.modelContext) private var modelContext
+    @Query private var items: [Chat] // Fetches all Item objects
+
+    @State private var selectedItem: Chat? // Tracks selection
+
     var body: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(messages) { message in
-                    MessageView(message: message)
-                        .transition(.slide)
+        NavigationSplitView {
+            // Sidebar (Master)
+            List(items, selection: $selectedItem) { item in
+                NavigationLink(item.name, value: item)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    Button("New Chat", systemImage: "plus.app", action: addItem)
+                    
                 }
             }
-        }
-        .defaultScrollAnchor(.bottom)
-        .defaultScrollAnchor(.top, for: .alignment)
-        .padding(10)
-        
-        HStack {
-            CustomTextEditor(text: $inputValue)
-                .padding(5)
-                .onKeyPress(.return, phases: .down) { _ in
-                    if (shiftPressed) {
-                        // allow new line with shift enter
-                        return .ignored
-                    }
-                    submitText()
-                    return .handled
-                }
-                .onModifierKeysChanged {old, new in
-                    shiftPressed = new.contains(.shift)
-                }
-            Button("Send", systemImage: "paperplane") {
-                submitText()
+        } detail: {
+            // Detail View
+            if let selectedItem = selectedItem {
+                ChatView(chat: selectedItem)
+            } else {
+                Text("Select an item")
             }
-            .buttonStyle(.plain)
-            .frame(minHeight: 40)
-            .padding(.trailing, 15)
-            .disabled(disableSubmit || inputValue.isEmpty)
         }
-        .background(colorMode == .dark ? Color.black : .white)
-        .padding(10)
-        .clipShape(RoundedRectangle(cornerRadius: 50))
+    }
+
+    private func addItem() {
+        let newItem = Chat(name: "New chat")
+        withAnimation {
+            modelContext.insert(newItem)
+            selectedItem = newItem // Auto-select the new item
+        }
     }
 }
-#Preview {
-    ContentView()
-}
+
+#Preview{ContentView()}

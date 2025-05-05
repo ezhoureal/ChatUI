@@ -10,10 +10,8 @@ extension Array {
 }
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Chat.timestamp) private var chatHistory: [Chat] // Fetches all Chat objects
-    
+    @Query(sort: \Chat.timestamp, order: .reverse) private var chatHistory: [Chat] // Fetches all Chat objects
     @State private var current: Chat?
-    
     var body: some View {
         NavigationSplitView {
             List(selection: $current) {
@@ -24,6 +22,9 @@ struct ContentView: View {
                         }
                 }
                 .onDelete(perform: deleteItems)
+            }
+            .onAppear {
+                current = chatHistory.first
             }
             .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -37,7 +38,7 @@ struct ContentView: View {
             } else {
                 Text("Add a new chat")
             }
-        }
+        }.navigationTitle("Chat")
     }
     
     private func addItem() {

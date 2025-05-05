@@ -3,7 +3,7 @@ import SwiftData
 
 extension Array {
     subscript(safe index: Int) -> Element? {
-        guard self.count > 0 else {return nil}
+        guard self.count > index else {return nil}
         guard index > 0 else {return self[0]}
         return self[index]
     }

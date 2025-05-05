@@ -10,28 +10,29 @@ import SwiftData
 @Model
 final class Chat {
     var timestamp: Date
-    var messages: [Message]
+    var messages: [Message] = []
+    
     var name: String {
-        get {
-            guard let lastMessage = messages.last else { return "New Message" }
-            return "\(lastMessage.content.prefix(20))..."
-        }
+        messages.last?.content.prefix(20).map(String.init).joined() ?? "New Chat"
     }
+    
     init(timestamp: Date = Date()) {
         self.timestamp = timestamp
-        self.messages = [Message(content: "Hello from the chatbot", author: .System)]
+        self.messages = [Message(content: "Hello from the chatbot", author: .system)]
     }
 }
 
 @Model
-final class Message: Identifiable {
+final class Message {
     enum Author: String, Codable {
-        case User, Chatbot, System
+        case user, chatbot, system
     }
     
     var id = UUID()
     var content: String
     var author: Author
+    @Relationship(deleteRule: .cascade, inverse: \Chat.messages) // Bidirectional link
+    var chat: Chat?
     
     init(id: UUID = UUID(), content: String, author: Author) {
         self.id = id

@@ -9,18 +9,15 @@ import SwiftData
 
 @Model
 final class Chat {
-    private var _name: String
     var timestamp: Date
     var messages: [Message]
     var name: String {
         get {
-            guard let lastMessage = messages.last else { return _name }
+            guard let lastMessage = messages.last else { return "New Message" }
             return "\(lastMessage.content.prefix(20))..."
         }
-        set { _name = newValue }
     }
-    init(name: String, timestamp: Date = Date()) {
-        self._name = name
+    init(timestamp: Date = Date()) {
         self.timestamp = timestamp
         self.messages = [Message(content: "Hello from the chatbot", author: .System)]
     }

@@ -1,41 +1,72 @@
 import SwiftUI
 import SwiftData
 
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        guard self.count > 0 else {return nil}
+        guard index > 0 else {return self[0]}
+        return self[index]
+    }
+}
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Chat] // Fetches all Item objects
-
-    @State private var selectedItem: Chat? // Tracks selection
-
+    @Query(sort: \Chat.timestamp) private var chatHistory: [Chat] // Fetches all Chat objects
+    
+    @State private var current: Chat?
+    
     var body: some View {
         NavigationSplitView {
-            // Sidebar (Master)
-            List(items, selection: $selectedItem) { item in
-                NavigationLink(item.name, value: item)
+            List(selection: $current) {
+                ForEach(chatHistory) { item in
+                    NavigationLink(item.name, value: item)
+                        .contextMenu {
+                            deleteButton(item: item)
+                        }
+                }
+                .onDelete(perform: deleteItems)
             }
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Button("New Chat", systemImage: "plus.app", action: addItem)
-                    
                 }
             }
         } detail: {
             // Detail View
-            if let selectedItem = selectedItem {
+            if let selectedItem = current {
                 ChatView(chat: selectedItem)
             } else {
-                Text("Select an item")
+                Text("Add a new chat")
             }
         }
     }
-
+    
     private func addItem() {
-        let newItem = Chat(name: "New chat")
+        let newChat = Chat()
         withAnimation {
-            modelContext.insert(newItem)
-            selectedItem = newItem // Auto-select the new item
+            modelContext.insert(newChat)
+            current = newChat // Auto-select the new item
+        }
+    }
+    private func deleteItems(at offsets: IndexSet) {
+        withAnimation {
+            for index in offsets {
+                guard let toDelete = chatHistory[safe: index] else {continue}
+                if toDelete == current {
+                    current = (index == 0) ? chatHistory[safe: index + 1] : chatHistory[safe: index - 1]
+                }
+                modelContext.delete(toDelete)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func deleteButton(item: Chat) -> some View {
+        Button("Delete", systemImage: "delete.right") {
+            if let index = chatHistory.firstIndex(where: { $0.id == item.id }) {
+                deleteItems(at: IndexSet(integer: index))
+            }
         }
     }
 }
 
-#Preview{ContentView()}
+#Preview{ContentView().modelContainer(for: Chat.self)}

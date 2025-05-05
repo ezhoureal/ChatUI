@@ -75,5 +75,5 @@ struct ChatView: View {
 }
 
 #Preview {
-    ChatView(chat: Chat(name: "lol"))
+    ChatView(chat: Chat())
 }

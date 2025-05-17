@@ -59,9 +59,11 @@ struct ChatView: View {
                     submitText()
                     return .handled
                 }
+            #if MAC_OS
                 .onModifierKeysChanged {old, new in
                     shiftPressed = new.contains(.shift)
                 }
+            #endif
             Button("Send", systemImage: "paperplane") {
                 submitText()
             }

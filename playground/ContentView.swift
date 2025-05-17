@@ -29,6 +29,7 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Button("New Chat", systemImage: "plus.app", action: addItem)
+                        .accessibilityLabel("new chat button")
                 }
             }
         } detail: {

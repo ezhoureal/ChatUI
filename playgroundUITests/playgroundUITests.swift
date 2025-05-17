@@ -24,11 +24,23 @@ final class playgroundUITests: XCTestCase {
 
     @MainActor
     func testExample() throws {
-        // UI tests must launch the application that they test.
         let app = XCUIApplication()
-        app.launch()
+        app.activate()
+        app.windows["Chat"].buttons["new chat button"].click()
+        app/*@START_MENU_TOKEN@*/.staticTexts["Ask me anything. Use Shift + Enter for new line"]/*[[".groups.staticTexts[\"Ask me anything. Use Shift + Enter for new line\"]",".staticTexts[\"Ask me anything. Use Shift + Enter for new line\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.click()
+        app.typeText("H\r")
+        let submitButton = app.buttons["Send"]
+        XCTAssertFalse(submitButton.isEnabled, "button isn't disabled after submission")
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        // test if submission is blocked while waiting for response
+        app.typeText("Hello\r")
+        let response = app.staticTexts["this is a mocked response"]
+        XCTAssertTrue(response.waitForExistence(timeout: 3), "Text did not appear within 3 seconds")
+        XCTAssertTrue(submitButton.isEnabled)
+        submitButton.click()
+        
+        let secondQuery = app.staticTexts["Hello"]
+        XCTAssertTrue(secondQuery.exists, "second submission failed")
     }
 
     @MainActor

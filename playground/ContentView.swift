@@ -80,4 +80,4 @@ struct ContentView: View {
     }
 }
 
-#Preview{ContentView().modelContainer(for: Chat.self)}
+#Preview{ContentView().modelContainer(for: [Chat.self, Message.self])}

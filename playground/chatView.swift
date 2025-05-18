@@ -21,18 +21,12 @@ struct ChatView: View {
         }
         Task { [inputValue] in
             let response = await sendMessage(message: inputValue, mock: true)
-            withAnimation(.spring) {
-                chat.messages.append(Message(content: response, author: .chatbot))
-                disableSubmit = false
-                print("in animation submit, message = \(chat.messages)")
-            }
+            chat.messages.append(Message(content: response, author: .chatbot))
+            disableSubmit = false
         }
-        withAnimation(.spring) {
-            chat.messages.append(Message(content: inputValue, author: .user))
-            disableSubmit = true
-            inputValue = ""
-            print("in animation submit, message = \(chat.messages)")
-        }
+        chat.messages.append(Message(content: inputValue, author: .user))
+        disableSubmit = true
+        inputValue = ""
     }
     
     var body: some View {
@@ -42,10 +36,12 @@ struct ChatView: View {
                     MessageView(message: message)
                         .transition(.push(from: .bottom))
                 }
+                .animation(.spring, value: chat.messages)
             }
         }
         .defaultScrollAnchor(.bottom)
         .defaultScrollAnchor(.top, for: .alignment)
+        .animation(.bouncy, value: chat.messages)
         .padding(10)
         
         HStack {
@@ -59,11 +55,11 @@ struct ChatView: View {
                     submitText()
                     return .handled
                 }
-            #if MAC_OS
+#if MAC_OS
                 .onModifierKeysChanged {old, new in
                     shiftPressed = new.contains(.shift)
                 }
-            #endif
+#endif
             Button("Send", systemImage: "paperplane") {
                 submitText()
             }
@@ -76,8 +72,4 @@ struct ChatView: View {
         .padding(10)
         .clipShape(RoundedRectangle(cornerRadius: 50))
     }
-}
-
-#Preview {
-    ChatView(chat: Chat())
 }

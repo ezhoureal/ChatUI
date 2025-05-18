@@ -7,13 +7,12 @@
 import Foundation
 
 private let url = URL(string: "https://api.deepseek.com/chat/completions")!
-func sendMessage(message: String, mock: Bool) async -> String {
+func sendMessage(message: String, mock: Bool, apiKey: String = "") async -> String {
     if (mock) {
         try! await Task.sleep(for: .seconds(2))
         return "this is a mocked response"
     }
 
-    let apiKey: String = ""
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")

@@ -32,13 +32,14 @@ func sendMessage(message: String, mock: Bool) async -> String {
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
     } catch {
         print("Error creating JSON data: \(error)")
-        // Handle error appropriately
+        return ""
     }
     do {
         let (data, response) = try await URLSession.shared.data(for: request)
-        print("data = \(data), response = \(response)")
+//        print("data = \(data), response = \(response)")
         let res = String(data: data, encoding: .utf8) ?? ""
         // todo: add deserialization and filtering
+        print(res)
         return res
     } catch {
         print("Error during chat request \(error)")

@@ -38,7 +38,7 @@ struct ChatView: View {
     var body: some View {
         ScrollView {
             LazyVStack {
-                ForEach(chat.messages) { message in
+                ForEach(chat.messages.sorted(by: {$0.timestamp < $1.timestamp})) { message in
                     MessageView(message: message)
                         .transition(.push(from: .bottom))
                 }

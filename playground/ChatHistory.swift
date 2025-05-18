@@ -23,20 +23,25 @@ final class Chat {
 }
 
 @Model
-final class Message {
+final class Message: CustomStringConvertible {
     enum Author: String, Codable {
         case user, chatbot, system
     }
     
     var id = UUID()
+    var timestamp = Date()
     var content: String
     var author: Author
+
     @Relationship(deleteRule: .cascade, inverse: \Chat.messages) // Bidirectional link
     var chat: Chat?
     
-    init(id: UUID = UUID(), content: String, author: Author) {
-        self.id = id
+    init(content: String, author: Author) {
         self.content = content
         self.author = author
+    }
+    
+    var description: String {
+        return "Message(content: \(content), id: \(id), author: \(author))"
     }
 }

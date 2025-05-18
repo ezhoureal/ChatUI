@@ -61,6 +61,15 @@ struct ContentView: View {
         }
     }
     
+    private func clearAllData() {
+        do {
+            try modelContext.delete(model: Message.self)
+            try modelContext.delete(model: Chat.self)
+        } catch {
+            fatalError(error.localizedDescription)
+        }
+    }
+    
     @ViewBuilder
     func deleteButton(item: Chat) -> some View {
         Button("Delete", systemImage: "delete.right") {
